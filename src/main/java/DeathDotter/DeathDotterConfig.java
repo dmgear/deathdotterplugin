@@ -1,4 +1,4 @@
-package DeathDotter;
+package net.runelite.client.plugins.deathdotter;
 
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
@@ -8,10 +8,11 @@ import net.runelite.client.config.ConfigItem;
 public interface DeathDotterConfig extends Config
 {
 	String GROUP = "deathdotter ";
-	@ConfigItem(
-			keyName = "hideLocalPlayer",
-			name = "Hide Local Player",
-			description = "Configures whether the local player should be hidden when another player is on the same tile"
+	@ConfigItem
+	(
+		keyName = "hideLocalPlayer",
+		name = "Hide Local Player",
+		description = "Hides local player when other players occupy the same location"
 	)
 	default boolean hideLocalPlayer()
 	{
