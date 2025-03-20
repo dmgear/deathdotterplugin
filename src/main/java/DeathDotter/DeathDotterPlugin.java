@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.deathdotter;
+package DeathDotter;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Provides;
