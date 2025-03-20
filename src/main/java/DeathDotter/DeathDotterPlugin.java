@@ -1,10 +1,8 @@
-package DeathDotter;
+package net.runelite.client.plugins.deathdotter;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Provides;
-
 import javax.inject.Inject;
-
 import net.runelite.api.Client;
 import net.runelite.api.Player;
 import net.runelite.api.Renderable;
@@ -16,17 +14,18 @@ import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-
 import java.util.List;
 
-@PluginDescriptor(
+@PluginDescriptor
+(
         name = "Death Dotter",
         description = "Allows you to switch rendered entities when players occupy the same tiles",
         tags = {"npc", "player", "deathdotter"},
         enabledByDefault = false
 )
 
-public class DeathDotterPlugin extends Plugin {
+public class DeathDotterPlugin extends Plugin 
+{
     @Inject
     private Client client;
 
@@ -41,45 +40,55 @@ public class DeathDotterPlugin extends Plugin {
     private final Hooks.RenderableDrawListener drawListener = this::shouldDraw;
 
     @Provides
-    DeathDotterConfig provideConfig(ConfigManager configManager) {
+    DeathDotterConfig provideConfig(ConfigManager configManager) 
+    {
         return configManager.getConfig(DeathDotterConfig.class);
     }
 
     @Override
-    protected void startUp() {
+    protected void startUp() 
+    {
         updateConfig();
 
         hooks.registerRenderableDrawListener(drawListener);
     }
 
     @Override
-    protected void shutDown() {
+    protected void shutDown() 
+    {
         hooks.unregisterRenderableDrawListener(drawListener);
     }
 
     @Subscribe
-    public void onGameTick(GameTick event) {
+    public void onGameTick(GameTick event) 
+    {
         Player localPlayer = client.getLocalPlayer();
-        if (localPlayer == null) {
+        if (localPlayer == null) 
+        {
             return;
         }
     }
 
     @Subscribe
-    public void onConfigChanged(ConfigChanged e) {
-        if (e.getGroup().equals(DeathDotterConfig.GROUP)) {
+    public void onConfigChanged(ConfigChanged e) 
+    {
+        if (e.getGroup().equals(DeathDotterConfig.GROUP)) 
+        {
             updateConfig();
         }
     }
 
-    private void updateConfig() {
+    private void updateConfig() 
+    {
 
         hideLocalPlayer = config.hideLocalPlayer();
 
     }
     
-    private boolean areModelsOverlapping(Player localPlayer, Player otherPlayer) {
-        if (localPlayer == otherPlayer) {
+    private boolean areModelsOverlapping(Player localPlayer, Player otherPlayer) 
+    {
+        if (localPlayer == otherPlayer) 
+        {
             return false;
         }
         LocalPoint localLoc1 = localPlayer.getLocalLocation();
@@ -101,22 +110,27 @@ public class DeathDotterPlugin extends Plugin {
     }
 
     @VisibleForTesting
-    boolean shouldDraw(Renderable renderable, boolean drawingUi) {
-        if (renderable instanceof Player) {
+    boolean shouldDraw(Renderable renderable, boolean drawingUi) 
+    {
+        if (renderable instanceof Player) 
+        {
             Player local = client.getLocalPlayer();
 
             // Check if the renderable is the local player
-            if (renderable == local) {
+            if (renderable == local) 
+            {
                 List<Player> players = client.getPlayers();
 
                 for (Player otherPlayer : players) {
 
-                    if (areModelsOverlapping(local, otherPlayer)) {
+                    if (areModelsOverlapping(local, otherPlayer)) 
+                    {
                         return false; // Hide local player
                     }
                 }
             }
         }
+
         return true;
     }
 }
