@@ -21,7 +21,7 @@ import java.util.List;
         name = "Death Dotter",
         description = "Allows you to switch rendered entities when players occupy the same tiles",
         tags = {"npc", "player", "deathdotter"},
-        enabledByDefault = false
+        enabledByDefault = true
 )
 
 public class DeathDotterPlugin extends Plugin 
