@@ -20,8 +20,7 @@ import java.util.List;
 (
         name = "Death Dotter",
         description = "Allows you to switch rendered entities when players occupy the same tiles",
-        tags = {"npc", "player", "deathdotter"},
-        enabledByDefault = true
+        tags = {"npc", "player", "deathdotter"}
 )
 
 public class DeathDotterPlugin extends Plugin 
@@ -40,13 +39,13 @@ public class DeathDotterPlugin extends Plugin
     private final Hooks.RenderableDrawListener drawListener = this::shouldDraw;
 
     @Provides
-    DeathDotterConfig provideConfig(ConfigManager configManager) 
+    DeathDotterConfig provideConfig(ConfigManager configManager)
     {
         return configManager.getConfig(DeathDotterConfig.class);
     }
 
     @Override
-    protected void startUp() 
+    protected void startUp()
     {
         updateConfig();
 
@@ -54,31 +53,22 @@ public class DeathDotterPlugin extends Plugin
     }
 
     @Override
-    protected void shutDown() 
+    protected void shutDown()
     {
         hooks.unregisterRenderableDrawListener(drawListener);
     }
 
-    @Subscribe
-    public void onGameTick(GameTick event) 
-    {
-        Player localPlayer = client.getLocalPlayer();
-        if (localPlayer == null) 
-        {
-            return;
-        }
-    }
 
     @Subscribe
-    public void onConfigChanged(ConfigChanged e) 
+    public void onConfigChanged(ConfigChanged e)
     {
-        if (e.getGroup().equals(DeathDotterConfig.GROUP)) 
+        if (e.getGroup().equals(DeathDotterConfig.GROUP))
         {
             updateConfig();
         }
     }
 
-    private void updateConfig() 
+    private void updateConfig()
     {
 
         hideLocalPlayer = config.hideLocalPlayer();

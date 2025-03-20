@@ -18,6 +18,4 @@ public interface DeathDotterConfig extends Config
 	{
 		return true;
 	}
-
-
 }
