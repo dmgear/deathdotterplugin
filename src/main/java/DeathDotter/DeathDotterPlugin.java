@@ -1,17 +1,12 @@
 package DeathDotter;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.inject.Provides;
 import javax.inject.Inject;
 import net.runelite.api.Client;
 import net.runelite.api.Player;
 import net.runelite.api.Renderable;
 import net.runelite.api.coords.LocalPoint;
-import net.runelite.api.events.GameTick;
 import net.runelite.client.callback.Hooks;
-import net.runelite.client.config.ConfigManager;
-import net.runelite.client.eventbus.Subscribe;
-import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import java.util.List;
@@ -31,24 +26,11 @@ public class DeathDotterPlugin extends Plugin
     @Inject
     private Hooks hooks;
 
-    @Inject
-    private DeathDotterConfig config;
-
-    private boolean hideLocalPlayer;
-
     private final Hooks.RenderableDrawListener drawListener = this::shouldDraw;
-
-    @Provides
-    DeathDotterConfig provideConfig(ConfigManager configManager)
-    {
-        return configManager.getConfig(DeathDotterConfig.class);
-    }
 
     @Override
     protected void startUp()
     {
-        updateConfig();
-
         hooks.registerRenderableDrawListener(drawListener);
     }
 
@@ -58,26 +40,9 @@ public class DeathDotterPlugin extends Plugin
         hooks.unregisterRenderableDrawListener(drawListener);
     }
 
-
-    @Subscribe
-    public void onConfigChanged(ConfigChanged e)
-    {
-        if (e.getGroup().equals(DeathDotterConfig.GROUP))
-        {
-            updateConfig();
-        }
-    }
-
-    private void updateConfig()
-    {
-
-        hideLocalPlayer = config.hideLocalPlayer();
-
-    }
-    
     private boolean areModelsOverlapping(Player localPlayer, Player otherPlayer) 
     {
-        if (localPlayer == otherPlayer) 
+        if (localPlayer == otherPlayer)
         {
             return false;
         }
@@ -100,8 +65,15 @@ public class DeathDotterPlugin extends Plugin
     }
 
     @VisibleForTesting
-    boolean shouldDraw(Renderable renderable, boolean drawingUi) 
+    boolean shouldDraw(Renderable renderable, boolean drawingUi)
     {
+
+        // this should only be run on the client thread
+        if (!client.isClientThread())
+        {
+            return true;
+        }
+
         if (renderable instanceof Player) 
         {
             Player local = client.getLocalPlayer();
@@ -120,7 +92,6 @@ public class DeathDotterPlugin extends Plugin
                 }
             }
         }
-
         return true;
     }
 }
