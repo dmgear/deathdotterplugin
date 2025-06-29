@@ -2,7 +2,6 @@ package DeathDotter;
 
 import com.google.common.annotations.VisibleForTesting;
 import javax.inject.Inject;
-
 import com.google.inject.Provides;
 import net.runelite.api.Client;
 import net.runelite.api.Player;
@@ -40,6 +39,7 @@ public class DeathDotterPlugin extends Plugin
     private final Hooks.RenderableDrawListener drawListener = this::shouldDraw;
 
     private boolean disableWhileInPvpZone;
+    private static final Logger log = LoggerFactory.getLogger(DeathDotterPlugin.class);
 
     @Provides
     DeathDotterConfig provideConfig(ConfigManager configManager)
@@ -52,7 +52,6 @@ public class DeathDotterPlugin extends Plugin
     {
         if (config.disableOutsidePvp() && !isInPvpZone())
         {
-            System.out.println("Death Dotter Plugin disabled outside PvP zones.");
             return;
         }
         hooks.registerRenderableDrawListener(drawListener);
