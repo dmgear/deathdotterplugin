@@ -39,7 +39,6 @@ public class DeathDotterPlugin extends Plugin
     private final Hooks.RenderableDrawListener drawListener = this::shouldDraw;
 
     private boolean disableWhileInPvpZone;
-    private static final Logger log = LoggerFactory.getLogger(DeathDotterPlugin.class);
 
     @Provides
     DeathDotterConfig provideConfig(ConfigManager configManager)
