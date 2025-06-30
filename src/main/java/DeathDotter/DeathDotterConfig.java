@@ -16,6 +16,6 @@ public interface DeathDotterConfig extends Config
     )
     default boolean disableOutsidePvp()
     {
-        return true; // Default to disabling the plugin outside PvP zones
+        return false; // Default to disabling the plugin outside PvP zones
     }
 }
