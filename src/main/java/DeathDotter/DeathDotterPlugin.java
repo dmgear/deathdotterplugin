@@ -47,6 +47,7 @@ public class DeathDotterPlugin extends Plugin {
   private boolean activeInLms;
   private boolean activeInDeadman;
   private boolean alwaysActive;
+  private boolean hide2D;
 
   private final Hooks.RenderableDrawListener drawListener = this::shouldDraw;
 
@@ -80,6 +81,7 @@ public class DeathDotterPlugin extends Plugin {
     activeInPvpArena = config.activeInPvpArena();
     activeInLms = config.activeInLms();
     activeInDeadman = config.activeInDeadman();
+    hide2D = config.hide2D();
   }
 
   /**
@@ -193,7 +195,8 @@ public class DeathDotterPlugin extends Plugin {
 
         for (Player otherPlayer : players) {
           if (areModelsOverlapping(local, otherPlayer)) {
-            return false; // Hide local player
+            // Hide local player and hide 2D elements if hide2D is enabled
+            return !(drawingUi ? hide2D : true);
           }
         }
       }
