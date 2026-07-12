@@ -3,15 +3,16 @@ package DeathDotter;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
-import java.util.List;
 import javax.inject.Inject;
 import com.google.inject.Provides;
 import net.runelite.api.Client;
 import net.runelite.api.Player;
 import net.runelite.api.Renderable;
+import net.runelite.api.WorldView;
 import net.runelite.api.WorldType;
 import net.runelite.api.coords.LocalPoint;
-import net.runelite.client.callback.Hooks;
+import net.runelite.client.callback.RenderCallback;
+import net.runelite.client.callback.RenderCallbackManager;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -36,7 +37,7 @@ public class DeathDotterPlugin extends Plugin {
   private Client client;
 
   @Inject
-  private Hooks hooks;
+  private RenderCallbackManager renderCallbackManager;
 
   @Inject
   private DeathDotterConfig config;
@@ -49,7 +50,12 @@ public class DeathDotterPlugin extends Plugin {
   private boolean alwaysActive;
   private boolean hide2D;
 
-  private final Hooks.RenderableDrawListener drawListener = this::shouldDraw;
+  private final RenderCallback drawListener = new RenderCallback() {
+    @Override
+    public boolean addEntity(Renderable renderable, boolean ui) {
+      return shouldDraw(renderable, ui);
+    }
+  };
 
   @Provides
   DeathDotterConfig provideConfig(ConfigManager configManager) {
@@ -59,12 +65,12 @@ public class DeathDotterPlugin extends Plugin {
   @Override
   protected void startUp() {
     updateConfig();
-    hooks.registerRenderableDrawListener(drawListener);
+    renderCallbackManager.register(drawListener);
   }
 
   @Override
   protected void shutDown() {
-    hooks.unregisterRenderableDrawListener(drawListener);
+    renderCallbackManager.unregister(drawListener);
   }
 
   @Subscribe
@@ -129,7 +135,17 @@ public class DeathDotterPlugin extends Plugin {
   }
 
   private boolean isLms() {
-    final int[] mapRegions = client.getMapRegions();
+    Player localPlayer = client.getLocalPlayer();
+    if (localPlayer == null) {
+      return false;
+    }
+
+    WorldView worldView = localPlayer.getWorldView();
+    if (worldView == null) {
+      return false;
+    }
+
+    final int[] mapRegions = worldView.getMapRegions();
 
     for (int region : mapRegions) {
       if (LMS_REGIONS.contains(region)) {
@@ -152,12 +168,23 @@ public class DeathDotterPlugin extends Plugin {
   }
 
   private boolean areModelsOverlapping(Player localPlayer, Player otherPlayer) {
+    if (localPlayer == null || otherPlayer == null) {
+      return false;
+    }
+
     if (localPlayer == otherPlayer) {
+      return false;
+    }
+
+    if (localPlayer.getWorldView() != otherPlayer.getWorldView()) {
       return false;
     }
 
     LocalPoint localLoc1 = localPlayer.getLocalLocation();
     LocalPoint localLoc2 = otherPlayer.getLocalLocation();
+    if (localLoc1 == null || localLoc2 == null) {
+      return false;
+    }
 
     // Calculate squared distance between the two players
     int dx = localLoc1.getX() - localLoc2.getX();
@@ -176,24 +203,30 @@ public class DeathDotterPlugin extends Plugin {
 
   @VisibleForTesting
   boolean shouldDraw(Renderable renderable, boolean drawingUi) {
-    // Draw everything when plugin shouldn't be active
-    if (!shouldPluginBeActive()) {
-      return true;
-    }
-
     // this should only be run on the client thread
     if (!client.isClientThread()) {
       return true;
     }
 
+    // Draw everything when plugin shouldn't be active
+    if (!shouldPluginBeActive()) {
+      return true;
+    }
+
     if (renderable instanceof Player) {
       Player local = client.getLocalPlayer();
+      if (local == null) {
+        return true;
+      }
+
+      WorldView worldView = local.getWorldView();
+      if (worldView == null) {
+        return true;
+      }
 
       // Check if the renderable is the local player
       if (renderable == local) {
-        List<Player> players = client.getPlayers();
-
-        for (Player otherPlayer : players) {
+        for (Player otherPlayer : worldView.players()) {
           if (areModelsOverlapping(local, otherPlayer)) {
             // Hide local player and hide 2D elements if hide2D is enabled
             return !(drawingUi ? hide2D : true);

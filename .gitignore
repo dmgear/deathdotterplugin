@@ -8,3 +8,5 @@ nbactions.xml
 nb-configuration.xml
 nbproject/
 bin/
+.vscode/settings.json
+gradle.properties
