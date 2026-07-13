@@ -16,7 +16,7 @@ public interface DeathDotterConfig extends Config {
   @ConfigSection(name = "Active Areas", description = "Configure which areas the plugin should be active in", position = 2)
   String activeAreasSection = "activeAreas";
 
-  @ConfigItem(keyName = "hide2D", name = "Hide 2D", description = "Hide the 2D elements of your player (e.g. health bar, prayers)", section = activeAreasSection, position = 1)
+  @ConfigItem(keyName = "hide2D", name = "Hide 2D", description = "Hide the 2D elements of your player (e.g. health bar, prayers)", section = generalSettingsSection, position = 0)
   default boolean hide2D() {
     return true;
   }
