@@ -208,30 +208,27 @@ public class DeathDotterPlugin extends Plugin {
       return true;
     }
 
+    // Only the local player is ever hidden, so draw everything else without
+    // running the area checks below for every entity on every frame
+    Player local = client.getLocalPlayer();
+    if (local == null || renderable != local) {
+      return true;
+    }
+
     // Draw everything when plugin shouldn't be active
     if (!shouldPluginBeActive()) {
       return true;
     }
 
-    if (renderable instanceof Player) {
-      Player local = client.getLocalPlayer();
-      if (local == null) {
-        return true;
-      }
+    WorldView worldView = local.getWorldView();
+    if (worldView == null) {
+      return true;
+    }
 
-      WorldView worldView = local.getWorldView();
-      if (worldView == null) {
-        return true;
-      }
-
-      // Check if the renderable is the local player
-      if (renderable == local) {
-        for (Player otherPlayer : worldView.players()) {
-          if (areModelsOverlapping(local, otherPlayer)) {
-            // Hide local player and hide 2D elements if hide2D is enabled
-            return !(drawingUi ? hide2D : true);
-          }
-        }
+    for (Player otherPlayer : worldView.players()) {
+      if (areModelsOverlapping(local, otherPlayer)) {
+        // Hide local player and hide 2D elements if hide2D is enabled
+        return !(drawingUi ? hide2D : true);
       }
     }
     return true;
